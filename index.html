@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFOS — Automated Financial Overview System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f4f7fb;--bg3:#e8f0fe;--bg4:#d6e4ff;
+  --border:rgba(0,60,120,0.1);--border2:rgba(0,60,120,0.18);
+  --text:#0a2a5e;--muted:#2e6fa3;
+  --accent:#00b8a0;--accent2:#3a7bd5;--accent3:#e879a0;
+  --danger:#e84c6b;--warn:#d97706;--info:#2563eb;
+  --success:#1D9E75;
+  --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--r:12px;
+}
+@media(prefers-color-scheme:dark){html:not(.light){
+  --bg:#080810;--bg2:#0f0f1a;--bg3:#161624;--bg4:#1e1e2e;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#00cfff;--muted:#00b8a0;
+  --accent:#00ffb3;--accent2:#7c6fff;--accent3:#ff6b9d;
+  --danger:#ff4f6b;--warn:#ffc14d;--info:#4db8ff;
+  --success:#00ffb3;
+}}
+html.dark{
+  --bg:#080810;--bg2:#0f0f1a;--bg3:#161624;--bg4:#1e1e2e;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#00cfff;--muted:#00b8a0;
+  --accent:#00ffb3;--accent2:#7c6fff;--accent3:#ff6b9d;
+  --danger:#ff4f6b;--warn:#ffc14d;--info:#4db8ff;
+  --success:#00ffb3;
+}
+html.light{
+  --bg:#ffffff;--bg2:#f4f7fb;--bg3:#e8f0fe;--bg4:#d6e4ff;
+  --border:rgba(0,60,120,0.1);--border2:rgba(0,60,120,0.18);
+  --text:#0a2a5e;--muted:#2e6fa3;
+  --accent:#00b8a0;--accent2:#3a7bd5;--accent3:#e879a0;
+  --danger:#e84c6b;--warn:#d97706;--info:#2563eb;
+  --success:#1D9E75;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.65;overflow-x:hidden;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:var(--bg);border-bottom:1px solid var(--border);}
+html.dark nav,html:not(.light) nav{background:rgba(8,8,16,0.92);}
+@media(prefers-color-scheme:dark){html:not(.light) nav{background:rgba(8,8,16,0.92);}}
+.logo{font-family:var(--fh);font-size:1.2rem;font-weight:800;letter-spacing:-0.5px;cursor:pointer;}
+.logo span{color:var(--accent);}
+.nav-links{display:flex;gap:2px;}
+.nav-links button{background:none;border:none;color:var(--muted);font-family:var(--fb);font-size:0.85rem;padding:0.4rem 1rem;border-radius:50px;cursor:pointer;transition:all 0.2s;}
+.nav-links button:hover,.nav-links button.active{color:var(--text);background:var(--bg3);}
+.nav-right{display:flex;align-items:center;gap:0.6rem;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--fb);font-size:0.8rem;padding:0.35rem 0.85rem;border-radius:50px;cursor:pointer;}
+.nav-cta{background:var(--accent);color:#fff;font-family:var(--fb);font-weight:600;font-size:0.85rem;padding:0.5rem 1.3rem;border:none;border-radius:50px;cursor:pointer;}
+
+.page{display:none;padding-top:64px;min-height:100vh;animation:pf 0.3s ease both;}
+.page.active{display:block;}
+@keyframes pf{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+@keyframes scrollX{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ── LANDING ── */
+.hero{text-align:center;padding:6rem 2rem 4rem;max-width:640px;margin:0 auto;}
+.hero h1{font-family:var(--fh);font-size:clamp(2.4rem,5vw,3.8rem);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:1.25rem;animation:fadeUp 0.6s ease both;}
+.hero h1 em{font-style:normal;color:var(--accent);display:block;}
+.hero p{font-size:1rem;color:var(--muted);max-width:420px;margin:0 auto 2rem;line-height:1.75;animation:fadeUp 0.6s 0.1s ease both;}
+.hero-btns{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.6s 0.2s ease both;}
+.btn-p{background:var(--accent);color:#fff;font-family:var(--fb);font-weight:600;font-size:0.9rem;padding:0.8rem 2rem;border:none;border-radius:50px;cursor:pointer;transition:all 0.2s;}
+.btn-p:hover{transform:translateY(-1px);}
+.btn-s{background:transparent;color:var(--text);font-family:var(--fb);border:1px solid var(--border2);font-size:0.9rem;padding:0.8rem 2rem;border-radius:50px;cursor:pointer;transition:all 0.2s;}
+.btn-s:hover{background:var(--bg3);}
+.divider{height:1px;background:var(--border);}
+.section-label{font-size:0.7rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:1.75rem;}
+.steps-section{padding:4rem 2rem;max-width:900px;margin:0 auto;}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;position:relative;}
+.steps-grid::before{content:'';position:absolute;top:21px;left:calc(12.5% + 12px);right:calc(12.5% + 12px);height:1px;background:var(--border2);}
+.step{text-align:center;}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-family:var(--fh);font-size:0.95rem;font-weight:700;color:var(--accent);position:relative;z-index:1;}
+.step h3{font-family:var(--fh);font-size:0.9rem;font-weight:700;margin-bottom:0.5rem;}
+.step p{font-size:0.82rem;color:var(--muted);line-height:1.6;}
+.providers-section{padding:3.5rem 2rem 4rem;max-width:900px;margin:0 auto;}
+.providers-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0.75rem;}
+.provider{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem 0.5rem;text-align:center;}
+.provider-icon{width:36px;height:36px;border-radius:8px;margin:0 auto 0.6rem;display:flex;align-items:center;justify-content:center;}
+.provider-name{font-size:0.72rem;color:var(--muted);font-weight:500;}
+.cta-section{text-align:center;padding:5rem 2rem;border-top:1px solid var(--border);}
+.cta-section h2{font-family:var(--fh);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-1px;margin-bottom:0.75rem;}
+.cta-section p{color:var(--muted);font-size:0.95rem;margin-bottom:1.75rem;}
+.cta-row{display:flex;gap:0.6rem;justify-content:center;max-width:400px;margin:0 auto;}
+.cta-row input{flex:1;border:1px solid var(--border2);border-radius:50px;padding:0.7rem 1.2rem;font-size:0.9rem;background:var(--bg2);color:var(--text);font-family:var(--fb);}
+.cta-row input::placeholder{color:var(--muted);}
+.cta-note{font-size:0.75rem;color:var(--muted);margin-top:0.75rem;}
+
+/* ── SHARED PAGE STYLES ── */
+.inner{max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
+.page-title{font-size:22px;font-weight:500;letter-spacing:-0.5px;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:1.75rem;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem;}
+.card-title{font-size:14px;font-weight:500;margin-bottom:3px;}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:1.1rem;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:1.25rem;}
+
+/* ── DASHBOARD ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem;}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.kpi-val{font-size:24px;font-weight:500;letter-spacing:-0.5px;line-height:1;}
+.kpi-val.g{color:var(--success);}
+.kpi-val.r{color:var(--danger);}
+.kpi-val.w{color:var(--warn);}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px;}
+.charts-main{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+.ch{position:relative;height:260px;}
+.ch.tall{height:300px;}
+.legend-list{display:flex;flex-direction:column;gap:7px;margin-top:0.75rem;}
+.leg-item{display:flex;align-items:center;justify-content:space-between;font-size:12px;}
+.leg-dot{width:8px;height:8px;border-radius:50%;margin-right:7px;flex-shrink:0;}
+.leg-label{display:flex;align-items:center;color:var(--muted);}
+.leg-val{font-weight:500;color:var(--text);}
+.dough-wrap{display:flex;flex-direction:column;align-items:center;}
+.dough-ch{position:relative;height:190px;width:190px;margin:0 auto;}
+
+/* ── FORECAST ── */
+.metrics-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:1.25rem;}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;text-align:center;}
+.metric-val{font-size:26px;font-weight:500;color:var(--success);margin-bottom:4px;}
+.metric-label{font-size:13px;font-weight:500;margin-bottom:3px;}
+.metric-sub{font-size:11px;color:var(--muted);}
+.alert{border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:0.75rem;border:1px solid var(--border);background:var(--bg2);position:relative;overflow:hidden;}
+.alert::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0;}
+.alert.safe::before{background:var(--success);}
+.alert.warn::before{background:var(--warn);}
+.alert.danger::before{background:var(--danger);}
+.alert-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.alert-month{font-size:14px;font-weight:500;}
+.alert-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;}
+.alert-badge.safe{background:var(--bg3);color:var(--success);}
+.alert-badge.warn{background:var(--bg3);color:var(--warn);}
+.alert-badge.danger{background:var(--bg3);color:var(--danger);}
+.alert-detail{font-size:13px;color:var(--muted);margin-bottom:8px;}
+.alert-bar-bg{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.alert-bar-fill{height:100%;border-radius:3px;}
+.alert-note{font-size:11px;color:var(--muted);margin-top:4px;}
+.leg-row{display:flex;gap:1.25rem;flex-wrap:wrap;margin-bottom:0.75rem;}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.leg-line{width:22px;height:2.5px;border-radius:1px;}
+
+/* ── PROGRESS ── */
+.score-wrap{display:flex;align-items:center;gap:1.75rem;}
+.score-ring{position:relative;width:100px;height:100px;flex-shrink:0;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-size:24px;font-weight:500;color:var(--success);}
+.score-lbl{font-size:10px;color:var(--muted);}
+.score-info h3{font-size:16px;font-weight:500;margin-bottom:4px;}
+.score-info p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:1rem;}
+.score-bars{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sbar{font-size:12px;}
+.sbar-top{display:flex;justify-content:space-between;margin-bottom:4px;color:var(--muted);}
+.sbar-top span:last-child{font-weight:500;color:var(--text);}
+.sbar-track{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.sbar-fill{height:100%;border-radius:2px;}
+.streak-wrap{display:flex;align-items:center;gap:1.5rem;}
+.streak-circle{width:72px;height:72px;border-radius:50%;border:2.5px solid var(--success);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.streak-n{font-size:22px;font-weight:500;color:var(--success);line-height:1;}
+.streak-unit{font-size:10px;color:var(--muted);}
+.streak-info h3{font-size:14px;font-weight:500;margin-bottom:3px;}
+.streak-info p{font-size:12px;color:var(--muted);line-height:1.55;}
+.badges-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.badge-item{background:var(--bg3);border-radius:var(--r);padding:0.875rem 1rem;border-left:3px solid transparent;}
+.badge-item.good{border-left-color:var(--success);}
+.badge-item.warn{border-left-color:var(--warn);}
+.badge-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.badge-name.good{color:var(--success);}
+.badge-name.warn{color:var(--warn);}
+.badge-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+.vel-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.vel-row span{color:var(--muted);}
+.vel-row strong{color:var(--text);}
+.vel-track{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden;margin:8px 0 4px;}
+.vel-fill{height:100%;border-radius:4px;background:var(--accent2);}
+.vel-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+.vel-warn{margin-top:10px;padding:10px 14px;background:var(--bg3);border-radius:var(--r);font-size:12px;color:var(--warn);border:1px solid var(--border2);}
+.notif-list{display:flex;flex-direction:column;gap:8px;}
+.notif{display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg3);border-radius:var(--r);}
+.notif-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.notif-title{font-size:13px;font-weight:500;margin-bottom:2px;}
+.notif-body{font-size:12px;color:var(--muted);line-height:1.5;}
+.notif-time{font-size:11px;color:var(--muted);margin-top:2px;}
+.live-badge{display:flex;align-items:center;gap:6px;background:var(--bg3);color:var(--success);font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 1.8s infinite;}
+.dash-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.8px;font-weight:400;padding:0 0 0.6rem;text-align:left;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+tbody tr:hover{background:var(--bg3);}
+tbody tr:last-child{border:none;}
+tbody td{padding:0.65rem 0;}
+.tx-cat{display:inline-block;background:var(--bg3);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--muted);}
+.tx-prov{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
+.tx-dot{width:6px;height:6px;border-radius:50%;}
+.tx-amt{font-weight:500;}
+.tx-amt.exp{color:var(--danger);}
+.tx-amt.inc{color:var(--success);}
+
+@media(max-width:900px){
+  .kpi-row,.g2,.charts-main{grid-template-columns:1fr 1fr;}
+  .g3,.metrics-row,.badges-grid{grid-template-columns:1fr 1fr;}
+  .steps-grid{grid-template-columns:1fr 1fr;}
+  .steps-grid::before{display:none;}
+  .providers-grid{grid-template-columns:repeat(4,1fr);}
+  nav{padding:0 1rem;}
+  .nav-links button{padding:0.4rem 0.6rem;font-size:0.78rem;}
+}
+@media(max-width:600px){
+  .kpi-row,.g2,.g3,.metrics-row,.badges-grid,.charts-main{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="showPage('landing',document.querySelectorAll('.nav-links button')[0])">A<span>FOS</span></div>
+  <div class="nav-links">
+    <button class="active" onclick="showPage('landing',this)">Home</button>
+    <button onclick="showPage('dashboard',this)">Dashboard</button>
+    <button onclick="showPage('forecast',this)">Forecast</button>
+    <button onclick="showPage('progress',this)">My Progress</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">&#9790; Dark</button>
+    <button class="nav-cta">Get early access</button>
+  </div>
+</nav>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="page-landing" class="page active">
+  <section class="hero">
+    <h1>Your money.<br><em>Finally understood.</em></h1>
+    <p>AFOS connects all your accounts in one place and uses machine learning to forecast your spending — so you know what is coming before it arrives.</p>
+    <div class="hero-btns">
+      <button class="btn-p" onclick="showPage('dashboard',document.querySelectorAll('.nav-links button')[1])">Open dashboard</button>
+      <button class="btn-s" onclick="showPage('forecast',document.querySelectorAll('.nav-links button')[2])">See the forecast</button>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="steps-section">
+    <div class="section-label">How it works</div>
+    <div class="steps-grid">
+      <div class="step"><div class="step-num">01</div><h3>Connect accounts</h3><p>Link your banks and apps via secure Open Banking. Takes under 2 minutes.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>We clean the data</h3><p>Every transaction is automatically sorted into categories and checked for patterns.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Models run</h3><p>Our forecasting and risk models update automatically with every new transaction.</p></div>
+      <div class="step"><div class="step-num">04</div><h3>You get the insight</h3><p>A clear dashboard, a 3-month forecast and alerts before problems happen.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="providers-section">
+    <div class="section-label">Compatible providers</div>
+    <div class="providers-grid">
+      <div class="provider"><div class="provider-icon" style="background:#e8f5f0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#00b8a0"/><path d="M8 12h8M12 8v8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div><div class="provider-name">Revolut</div></div>
+      <div class="provider"><div class="provider-icon" style="background:#e8eef8;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" fill="#3a7bd5"/><path d="M3 10h18" stroke="#fff" stroke-width="1.5"/></svg></div><div class="provider-name">Credit card</div></div>
+      <div class="provider"><div class="provider-icon" style="background:#eef2e8;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" fill="#3b6d11"/><circle cx="8" cy="13" r="2" fill="#fff"/></svg></div><div class="provider-name">Debit card</div></div>
+      <div class="provider"><div class="provider-icon" style="background:#e8eef8;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" fill="#185fa5"/><path d="M8 20h8M12 18v2" stroke="#185fa5" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="provider-name">Bank transfer</div></div>
+      <div class="provider"><div class="provider-icon" style="background:#eeedf8;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#534ab7"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="provider-name">PayPal</div></div>
+      <div class="provider"><div class="provider-icon" style="background:#f0f0f0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" fill="#444"/><path d="M9 12h6M12 9v6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="provider-name">Apple Pay</div></div>
+      <div class="provider"><div class="provider-icon" style="background:#eef2e8;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#3b6d11"/><path d="M8 12h8M14 9l3 3-3 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="provider-name">Google Pay</div></div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Ready to take control?</h2>
+    <p>Join the waitlist and be first to know when AFOS launches.</p>
+    <div class="cta-row"><input type="email" placeholder="your@email.com" /><button class="btn-p">Join waitlist</button></div>
+    <div class="cta-note">No spam. No credit card. Just early access.</div>
+  </section>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="page-dashboard" class="page">
+<div class="inner">
+  <div class="dash-top">
+    <div><div class="page-title">Dashboard</div><div class="page-sub">Jan 2022 — Dec 2024 · 3,319 transactions · 7 providers</div></div>
+    <div class="live-badge"><span class="pdot"></span>Demo account</div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total spent</div><div class="kpi-val r" id="kv1">€0</div><div class="kpi-sub">Over 3 years</div></div>
+    <div class="kpi"><div class="kpi-label">Total earned</div><div class="kpi-val g" id="kv2">€0</div><div class="kpi-sub">Over 3 years</div></div>
+    <div class="kpi"><div class="kpi-label">Net position</div><div class="kpi-val g" id="kv3">€0</div><div class="kpi-sub">Overall surplus</div></div>
+    <div class="kpi"><div class="kpi-label">Months in deficit</div><div class="kpi-val w">8 / 36</div><div class="kpi-sub">22% of all months</div></div>
+  </div>
+  <div class="charts-main">
+    <div class="card"><div class="card-title">Monthly income vs expenses</div><div class="card-sub">Green = income · Red = expenses · 2022–2024</div><div class="ch tall"><canvas id="c-ie"></canvas></div></div>
+    <div class="card"><div class="card-title">Spending by provider</div><div class="card-sub">Share of total transactions</div><div class="dough-wrap"><div class="dough-ch"><canvas id="c-prov"></canvas></div><div class="legend-list" id="prov-legend"></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Recent transactions</div>
+    <div class="card-sub">Your last 10 transactions across all providers</div>
+    <table>
+      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Provider</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody id="tx-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ FORECAST ══════════ -->
+<div id="page-forecast" class="page">
+<div class="inner">
+  <div class="page-title">Spending forecast</div>
+  <div class="page-sub">Based on your last 3 years of transactions — here is what our model predicts for the months ahead.</div>
+  <div class="card">
+    <div class="card-title">Your spending — last 12 months + 3-month forecast</div>
+    <div class="leg-row">
+      <div class="leg"><div class="leg-line" style="background:var(--accent2);"></div>What you spent</div>
+      <div class="leg"><div class="leg-line" style="background:var(--success);border-top:2px dashed var(--success);height:0;"></div>&nbsp;Your income</div>
+      <div class="leg"><div class="leg-line" style="background:var(--accent3);"></div>Forecast</div>
+    </div>
+    <div class="ch" style="height:300px;"><canvas id="c-fc"></canvas></div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="metric-val">€115</div><div class="metric-label">Typical accuracy</div><div class="metric-sub">Usually within €115 of what you actually spend</div></div>
+    <div class="metric"><div class="metric-val">4.8%</div><div class="metric-label">Error rate</div><div class="metric-sub">On a €2,400 month that is just €115 — well within planning range</div></div>
+    <div class="metric"><div class="metric-val">9/10</div><div class="metric-label">Risk detection</div><div class="metric-sub">Correctly identifies risky months before they happen</div></div>
+  </div>
+  <div style="font-size:14px;font-weight:500;margin-bottom:1rem;">What to expect — next 3 months</div>
+  <div class="alert safe"><div class="alert-top"><div class="alert-month">January 2025</div><div class="alert-badge safe">You are safe</div></div><div class="alert-detail">Forecast €2,290 — €399 below your income. No action needed this month.</div><div class="alert-bar-bg"><div class="alert-bar-fill" style="width:84%;background:var(--success);"></div></div><div class="alert-note">84% of monthly income</div></div>
+  <div class="alert warn"><div class="alert-top"><div class="alert-month">February 2025</div><div class="alert-badge warn">Keep an eye on it</div></div><div class="alert-detail">Forecast €2,540 — upper range could hit €2,810, above your income. Cut around €150 from dining and takeaways to stay safe.</div><div class="alert-bar-bg"><div class="alert-bar-fill" style="width:94%;background:var(--warn);"></div></div><div class="alert-note">94% of monthly income</div></div>
+  <div class="alert danger"><div class="alert-top"><div class="alert-month">March 2025</div><div class="alert-badge danger">Action required</div></div><div class="alert-detail">Forecast €2,740 — projected to exceed your income. Cut €300 from online shopping and subscriptions now.</div><div class="alert-bar-bg"><div class="alert-bar-fill" style="width:100%;background:var(--danger);"></div></div><div class="alert-note">102% of monthly income — over budget</div></div>
+</div>
+</div>
+
+<!-- ══════════ MY PROGRESS ══════════ -->
+<div id="page-progress" class="page">
+<div class="inner">
+  <div class="page-title">My progress</div>
+  <div class="page-sub">Good morning, Cody — here is your financial health picture for December 2024.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Financial health score</div>
+      <div class="score-wrap" style="margin-top:0.5rem;">
+        <div class="score-ring">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="8" stroke-dasharray="263.9" stroke-dashoffset="68.6" stroke-linecap="round"/>
+          </svg>
+          <div class="score-text"><div class="score-num">74</div><div class="score-lbl">/ 100</div></div>
+        </div>
+        <div class="score-info">
+          <h3>Good — improving</h3>
+          <p>Up 6 points since last month. Cut deficit months to reach Excellent.</p>
+          <div class="score-bars">
+            <div class="sbar"><div class="sbar-top"><span>Net position</span><span>22/25</span></div><div class="sbar-track"><div class="sbar-fill" style="width:88%;background:var(--success);"></div></div></div>
+            <div class="sbar"><div class="sbar-top"><span>Deficit months</span><span>19/25</span></div><div class="sbar-track"><div class="sbar-fill" style="width:76%;background:var(--warn);"></div></div></div>
+            <div class="sbar"><div class="sbar-top"><span>Savings rate</span><span>21/25</span></div><div class="sbar-track"><div class="sbar-fill" style="width:84%;background:var(--success);"></div></div></div>
+            <div class="sbar"><div class="sbar-top"><span>Forecast accuracy</span><span>20/25</span></div><div class="sbar-track"><div class="sbar-fill" style="width:80%;background:var(--success);"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Savings streaks</div>
+      <div style="display:flex;flex-direction:column;gap:1rem;margin-top:0.5rem;">
+        <div class="streak-wrap">
+          <div class="streak-circle"><div class="streak-n">3</div><div class="streak-unit">months</div></div>
+          <div class="streak-info"><h3>Current streak</h3><p>3 months in a row with income beating expenses. Keep going.</p></div>
+        </div>
+        <div style="height:1px;background:var(--border);"></div>
+        <div class="streak-wrap">
+          <div class="streak-circle" style="border-color:var(--accent2);"><div class="streak-n" style="color:var(--accent2);">7</div><div class="streak-unit">months</div></div>
+          <div class="streak-info"><h3>Best ever</h3><p>Hit in mid-2023. That is your target to beat.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Spending velocity — December 2024</div>
+    <div class="card-sub">15 days in — are you on track?</div>
+    <div class="vel-row"><span>Spent so far (day 15)</span><strong>€1,482</strong></div>
+    <div class="vel-row"><span>Projected full month</span><strong style="color:var(--warn);">€2,964</strong></div>
+    <div class="vel-row"><span>Monthly income</span><strong style="color:var(--success);">€2,689</strong></div>
+    <div class="vel-track"><div class="vel-fill" style="width:55%;"></div></div>
+    <div class="vel-labels"><span>Day 1</span><span>Today</span><span>Day 31</span></div>
+    <div class="vel-warn">Projected to overspend by €275 — watch takeaways and dining over the next two weeks.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your badges</div>
+    <div class="card-sub">Earned from your actual spending patterns</div>
+    <div class="badges-grid">
+      <div class="badge-item good"><div class="badge-name good">Consistent saver</div><div class="badge-desc">Saving 8.4% of income every month on average</div></div>
+      <div class="badge-item good"><div class="badge-name good">Smart shopper</div><div class="badge-desc">Average grocery trip under €50</div></div>
+      <div class="badge-item good"><div class="badge-name good">Lean subscriber</div><div class="badge-desc">Subscriptions well under control at €52/month</div></div>
+      <div class="badge-item warn"><div class="badge-name warn">Takeaway fan</div><div class="badge-desc">€163/month — cutting to €80 saves €996/year</div></div>
+      <div class="badge-item warn"><div class="badge-name warn">High housing cost</div><div class="badge-desc">Rent is 29% of total spend — above the 28% guideline</div></div>
+      <div class="badge-item warn"><div class="badge-name warn">Online shopping</div><div class="badge-desc">€15,200 over 3 years — a 20% cut saves €1,013/year</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent alerts</div>
+    <div class="notif-list">
+      <div class="notif"><div class="notif-dot" style="background:var(--warn);"></div><div><div class="notif-title">Spending velocity alert</div><div class="notif-body">On track to spend €275 above income this month. Review dining and takeaway.</div><div class="notif-time">Today, 9:14am</div></div></div>
+      <div class="notif"><div class="notif-dot" style="background:var(--success);"></div><div><div class="notif-title">Streak extended to 3 months</div><div class="notif-body">November was your third consecutive surplus month.</div><div class="notif-time">1 Dec, 8:00am</div></div></div>
+      <div class="notif"><div class="notif-dot" style="background:var(--danger);"></div><div><div class="notif-title">March 2025 flagged — high risk</div><div class="notif-body">Spending projected to exceed income. Plan a €300 reduction now.</div><div class="notif-time">1 Dec, 8:01am</div></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  setTimeout(()=>{
+    if(id==='dashboard'&&!window._d){buildDash();window._d=true;}
+    if(id==='forecast'&&!window._f){buildForecast();window._f=true;}
+  },50);
+}
+
+function toggleTheme(){
+  const html=document.documentElement;
+  const btn=document.getElementById('theme-btn');
+  if(html.classList.contains('dark')){
+    html.classList.remove('dark');html.classList.add('light');
+    btn.innerHTML='&#9790; Dark';localStorage.setItem('afos-theme','light');
+  } else {
+    html.classList.remove('light');html.classList.add('dark');
+    btn.innerHTML='&#9788; Light';localStorage.setItem('afos-theme','dark');
+  }
+}
+(function(){
+  const saved=localStorage.getItem('afos-theme');
+  const dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if(saved==='dark'||(saved===null&&dark)){
+    document.documentElement.classList.add('dark');
+    const b=document.getElementById('theme-btn');
+    if(b)b.innerHTML='&#9788; Light';
+  }
+})();
+
+const MO=['Jan 22','Feb 22','Mar 22','Apr 22','May 22','Jun 22','Jul 22','Aug 22','Sep 22','Oct 22','Nov 22','Dec 22','Jan 23','Feb 23','Mar 23','Apr 23','May 23','Jun 23','Jul 23','Aug 23','Sep 23','Oct 23','Nov 23','Dec 23','Jan 24','Feb 24','Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24'];
+const EXP=[2180,2050,2240,2090,2160,2380,2420,2390,2200,2310,2480,2910,2260,2100,2310,2050,2190,2490,2540,2470,2280,2340,2510,2980,2310,2150,2380,2120,2200,2560,2580,2510,2310,2390,2550,3020];
+const INC=[2680,2710,2650,2720,2730,2690,2850,2720,2700,2760,2680,2730,2710,2730,2680,2750,2760,2720,2870,2750,2730,2780,2700,2750,2730,2750,2700,2770,2780,2740,2890,2770,2750,2800,2720,2770];
+
+function animCount(el,target,prefix){
+  let cur=0;const inc=target/60;
+  const t=setInterval(()=>{cur+=inc;el.textContent=prefix+Math.round(Math.min(cur,target)).toLocaleString();if(cur>=target)clearInterval(t);},25);
+}
+
+function getCol(varName){
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim()||'#888';
+}
+
+function buildDash(){
+  animCount(document.getElementById('kv1'),87432,'€');
+  animCount(document.getElementById('kv2'),96814,'€');
+  animCount(document.getElementById('kv3'),9382,'€');
+
+  const isDark=document.documentElement.classList.contains('dark')||
+    (!document.documentElement.classList.contains('light')&&window.matchMedia('(prefers-color-scheme:dark)').matches);
+
+  Chart.defaults.color=isDark?'#00b8a0':'#2e6fa3';
+  Chart.defaults.borderColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,60,120,0.08)';
+  Chart.defaults.font.family="'DM Sans',sans-serif";
+  Chart.defaults.font.size=11;
+
+  new Chart(document.getElementById('c-ie'),{
+    type:'line',
+    data:{labels:MO,datasets:[
+      {label:'Income',data:INC,borderColor:isDark?'#00ffb3':'#1D9E75',backgroundColor:isDark?'rgba(0,255,179,0.07)':'rgba(29,158,117,0.07)',fill:true,tension:0.35,borderWidth:2,pointRadius:0},
+      {label:'Expenses',data:EXP,borderColor:isDark?'#ff4f6b':'#E24B4A',backgroundColor:isDark?'rgba(255,79,107,0.07)':'rgba(226,75,74,0.07)',fill:true,tension:0.35,borderWidth:2,pointRadius:0}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{ticks:{callback:v=>'€'+v.toLocaleString()},grid:{color:isDark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.04)'}},x:{ticks:{maxTicksLimit:12}}}}
+  });
+
+  const provLabels=['Revolut','Apple Pay','Google Pay','Credit Card','Debit Card','PayPal','Bank Transfer'];
+  const provData=[22400,19800,18900,11200,9100,7400,5800];
+  const provCols=['#1D9E75','#378ADD','#639922','#E24B4A','#BA7517','#534AB7','#5F5E5A'];
+  const total=provData.reduce((a,b)=>a+b,0);
+
+  new Chart(document.getElementById('c-prov'),{
+    type:'doughnut',
+    data:{labels:provLabels,datasets:[{data:provData,backgroundColor:provCols,borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+
+  const leg=document.getElementById('prov-legend');
+  provLabels.forEach((l,i)=>{
+    const pct=Math.round(provData[i]/total*100);
+    leg.innerHTML+=`<div class="leg-item"><span class="leg-label"><span class="leg-dot" style="background:${provCols[i]}"></span>${l}</span><span class="leg-val">${pct}%</span></div>`;
+  });
+
+  const txs=[
+    {date:'28 Dec 2024',desc:'Tesco',cat:'Groceries',prov:'Revolut',provCol:'#1D9E75',amt:'−€67.40',type:'exp'},
+    {date:'27 Dec 2024',desc:'Salary — Employer',cat:'Income',prov:'Bank Transfer',provCol:'#5F5E5A',amt:'+€3,150.00',type:'inc'},
+    {date:'26 Dec 2024',desc:'Deliveroo',cat:'Takeaway',prov:'Apple Pay',provCol:'#378ADD',amt:'−€28.90',type:'exp'},
+    {date:'24 Dec 2024',desc:'Amazon.co.uk',cat:'Online Shopping',prov:'PayPal',provCol:'#534AB7',amt:'−€94.99',type:'exp'},
+    {date:'23 Dec 2024',desc:'Revolut — Aoife',cat:'Transfer',prov:'Revolut',provCol:'#1D9E75',amt:'+€40.00',type:'inc'},
+    {date:'22 Dec 2024',desc:'Luas',cat:'Transport',prov:'Google Pay',provCol:'#639922',amt:'−€3.20',type:'exp'},
+    {date:'21 Dec 2024',desc:'Netflix',cat:'Subscriptions',prov:'Credit Card',provCol:'#E24B4A',amt:'−€15.99',type:'exp'},
+    {date:'20 Dec 2024',desc:'Starbucks',cat:'Coffee',prov:'Revolut',provCol:'#1D9E75',amt:'−€6.80',type:'exp'},
+    {date:'19 Dec 2024',desc:'Aer Lingus',cat:'Travel',prov:'Credit Card',provCol:'#E24B4A',amt:'−€189.00',type:'exp'},
+    {date:'18 Dec 2024',desc:'Lidl',cat:'Groceries',prov:'Google Pay',provCol:'#639922',amt:'−€54.20',type:'exp'},
+  ];
+  const tb=document.getElementById('tx-body');
+  txs.forEach(tx=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--muted);white-space:nowrap;">${tx.date}</td>
+      <td style="font-weight:500;">${tx.desc}</td>
+      <td><span class="tx-cat">${tx.cat}</span></td>
+      <td><span class="tx-prov"><span class="tx-dot" style="background:${tx.provCol}"></span>${tx.prov}</span></td>
+      <td style="text-align:right"><span class="tx-amt ${tx.type}">${tx.amt}</span></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+function buildForecast(){
+  const isDark=document.documentElement.classList.contains('dark')||
+    (!document.documentElement.classList.contains('light')&&window.matchMedia('(prefers-color-scheme:dark)').matches);
+
+  Chart.defaults.color=isDark?'#00b8a0':'#2e6fa3';
+  Chart.defaults.font.size=11;
+
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+  const actual=[2310,2150,2380,2120,2200,2560,2580,2510,2310,2390,2550,3020,null,null,null];
+  const forecast=[null,null,null,null,null,null,null,null,null,null,null,3020,2290,2540,2740];
+  const fHi=[null,null,null,null,null,null,null,null,null,null,null,3020,2470,2810,3020];
+  const fLo=[null,null,null,null,null,null,null,null,null,null,null,3020,2110,2280,2460];
+  const income=Array(15).fill(2689);
+
+  const blueCol=isDark?'#7c6fff':'#3a7bd5';
+  const greenCol=isDark?'#00ffb3':'#1D9E75';
+  const purpleCol=isDark?'#ff6b9d':'#e879a0';
+
+  new Chart(document.getElementById('c-fc'),{
+    type:'line',
+    data:{labels:mo,datasets:[
+      {label:'What you spent',data:actual,borderColor:blueCol,backgroundColor:isDark?'rgba(124,111,255,0.08)':'rgba(58,123,213,0.08)',fill:true,tension:0.35,borderWidth:2.5,pointRadius:3,pointBackgroundColor:blueCol,spanGaps:false},
+      {label:'Your income',data:income,borderColor:greenCol,borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,fill:false},
+      {label:'Forecast',data:forecast,borderColor:purpleCol,borderWidth:2.5,pointRadius:[0,0,0,0,0,0,0,0,0,0,0,0,4,4,4],pointBackgroundColor:purpleCol,tension:0.35,spanGaps:false},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': €'+ctx.parsed.y.toLocaleString()}}},
+      scales:{y:{ticks:{callback:v=>'€'+v.toLocaleString()},grid:{color:isDark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.04)'},min:1800},x:{grid:{color:isDark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.04)'}}}
+    }
+  });
+}
+</script>
+</body>
+</html>
