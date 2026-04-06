@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFOS — Automated Financial Overview System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f4f7fb;--bg3:#e8f0fe;
+  --border:rgba(0,60,120,0.1);--border2:rgba(0,60,120,0.18);
+  --text:#0a2a5e;--muted:#2e6fa3;
+  --accent:#00b8a0;--accent2:#3a7bd5;
+  --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--r:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#080810;--bg2:#0f0f1a;--bg3:#161624;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#00cfff;--muted:#00b8a0;--accent:#00ffb3;--accent2:#7c6fff;
+}}
+html.dark{--bg:#080810;--bg2:#0f0f1a;--bg3:#161624;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);--text:#00cfff;--muted:#00b8a0;--accent:#00ffb3;--accent2:#7c6fff;}
+html.light{--bg:#ffffff;--bg2:#f4f7fb;--bg3:#e8f0fe;--border:rgba(0,60,120,0.1);--border2:rgba(0,60,120,0.18);--text:#0a2a5e;--muted:#2e6fa3;--accent:#00b8a0;--accent2:#3a7bd5;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.65;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo{font-family:var(--fh);font-size:1.2rem;font-weight:800;letter-spacing:-0.5px;}
+.logo span{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:0.75rem;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--fb);font-size:0.8rem;padding:0.35rem 0.85rem;border-radius:50px;cursor:pointer;}
+.cta-btn{background:var(--accent);color:#fff;font-family:var(--fb);font-weight:600;font-size:0.85rem;padding:0.5rem 1.3rem;border:none;border-radius:50px;cursor:pointer;}
+.hero{text-align:center;padding:6rem 2rem 4rem;max-width:640px;margin:0 auto;}
+.hero h1{font-family:var(--fh);font-size:clamp(2.4rem,5vw,3.8rem);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:1.25rem;}
+.hero h1 em{font-style:normal;color:var(--accent);display:block;}
+.hero p{font-size:1rem;color:var(--muted);max-width:420px;margin:0 auto 2rem;line-height:1.75;}
+.hero-btns{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;}
+.btn-p{background:var(--accent);color:#fff;font-family:var(--fb);font-weight:600;font-size:0.9rem;padding:0.8rem 2rem;border:none;border-radius:50px;cursor:pointer;}
+.btn-s{background:transparent;color:var(--text);font-family:var(--fb);border:1px solid var(--border2);font-size:0.9rem;padding:0.8rem 2rem;border-radius:50px;cursor:pointer;}
+.divider{height:1px;background:var(--border);}
+.steps-section{padding:4rem 2rem;max-width:900px;margin:0 auto;}
+.section-label{font-size:0.7rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:2rem;}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;position:relative;}
+.steps-grid::before{content:'';position:absolute;top:21px;left:calc(12.5% + 12px);right:calc(12.5% + 12px);height:1px;background:var(--border2);}
+.step{text-align:center;}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--bg);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-family:var(--fh);font-size:0.95rem;font-weight:700;color:var(--accent);position:relative;z-index:1;}
+.step h3{font-family:var(--fh);font-size:0.9rem;font-weight:700;margin-bottom:0.5rem;}
+.step p{font-size:0.82rem;color:var(--muted);line-height:1.6;}
+.providers-section{padding:3.5rem 2rem 4rem;max-width:900px;margin:0 auto;}
+.providers-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0.75rem;}
+.provider{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem 0.5rem;text-align:center;}
+.provider-icon{width:36px;height:36px;border-radius:8px;margin:0 auto 0.6rem;display:flex;align-items:center;justify-content:center;}
+.provider-name{font-size:0.72rem;color:var(--muted);font-weight:500;}
+.cta-section{text-align:center;padding:5rem 2rem;border-top:1px solid var(--border);}
+.cta-section h2{font-family:var(--fh);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-1px;margin-bottom:0.75rem;}
+.cta-section p{color:var(--muted);font-size:0.95rem;margin-bottom:1.75rem;}
+.cta-row{display:flex;gap:0.6rem;justify-content:center;max-width:400px;margin:0 auto;}
+.cta-row input{flex:1;border:1px solid var(--border2);border-radius:50px;padding:0.7rem 1.2rem;font-size:0.9rem;background:var(--bg2);color:var(--text);font-family:var(--fb);}
+.cta-row input::placeholder{color:var(--muted);}
+.cta-note{font-size:0.75rem;color:var(--muted);margin-top:0.75rem;}
+@media(max-width:700px){
+  .steps-grid{grid-template-columns:1fr 1fr;}
+  .steps-grid::before{display:none;}
+  .providers-grid{grid-template-columns:repeat(4,1fr);}
+  nav{padding:0 1rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">A<span>FOS</span></div>
+  <div class="nav-right">
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">&#9790; Dark</button>
+    <button class="cta-btn">Get early access</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>Your money.<br><em>Finally understood.</em></h1>
+  <p>AFOS connects all your accounts in one place and uses machine learning to forecast your spending — so you know what is coming before it arrives.</p>
+  <div class="hero-btns">
+    <button class="btn-p">Get early access</button>
+    <button class="btn-s">See how it works</button>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="steps-section">
+  <div class="section-label">How it works</div>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Connect accounts</h3>
+      <p>Link your banks and apps via secure Open Banking. Takes under 2 minutes.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>We clean the data</h3>
+      <p>Every transaction is automatically sorted into categories and checked for patterns.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Models run</h3>
+      <p>Our forecasting and risk models update automatically with every new transaction.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>You get the insight</h3>
+      <p>A clear dashboard, a 3-month forecast and alerts before problems happen.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="providers-section">
+  <div class="section-label">Compatible providers</div>
+  <div class="providers-grid">
+    <div class="provider">
+      <div class="provider-icon" style="background:#e8f5f0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#00b8a0"/><path d="M8 12h8M12 8v8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="provider-name">Revolut</div>
+    </div>
+    <div class="provider">
+      <div class="provider-icon" style="background:#e8eef8;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" fill="#3a7bd5"/><path d="M3 10h18" stroke="#fff" stroke-width="1.5"/></svg>
+      </div>
+      <div class="provider-name">Credit card</div>
+    </div>
+    <div class="provider">
+      <div class="provider-icon" style="background:#eef2e8;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" fill="#3b6d11"/><circle cx="8" cy="13" r="2" fill="#fff"/></svg>
+      </div>
+      <div class="provider-name">Debit card</div>
+    </div>
+    <div class="provider">
+      <div class="provider-icon" style="background:#e8eef8;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" fill="#185fa5"/><path d="M8 20h8M12 18v2" stroke="#185fa5" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="provider-name">Bank transfer</div>
+    </div>
+    <div class="provider">
+      <div class="provider-icon" style="background:#eeedf8;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#534ab7"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="provider-name">PayPal</div>
+    </div>
+    <div class="provider">
+      <div class="provider-icon" style="background:#f0f0f0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" fill="#444"/><path d="M9 12h6M12 9v6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div class="provider-name">Apple Pay</div>
+    </div>
+    <div class="provider">
+      <div class="provider-icon" style="background:#eef2e8;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#3b6d11"/><path d="M8 12h8M14 9l3 3-3 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="provider-name">Google Pay</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Ready to take control?</h2>
+  <p>Join the waitlist and be first to know when AFOS launches.</p>
+  <div class="cta-row">
+    <input type="email" placeholder="your@email.com" />
+    <button class="btn-p">Join waitlist</button>
+  </div>
+  <div class="cta-note">No spam. No credit card. Just early access.</div>
+</section>
+
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const btn=document.getElementById('theme-btn');
+  if(html.classList.contains('dark')){
+    html.classList.remove('dark');html.classList.add('light');
+    btn.innerHTML='&#9790; Dark';localStorage.setItem('theme','light');
+  } else {
+    html.classList.remove('light');html.classList.add('dark');
+    btn.innerHTML='&#9788; Light';localStorage.setItem('theme','dark');
+  }
+}
+(function(){
+  const saved=localStorage.getItem('theme');
+  const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if(saved==='dark'||(saved===null&&prefersDark)){
+    document.documentElement.classList.add('dark');
+    const b=document.getElementById('theme-btn');
+    if(b)b.innerHTML='&#9788; Light';
+  }
+})();
+</script>
+</body>
+</html>
